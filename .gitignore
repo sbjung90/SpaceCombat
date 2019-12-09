@@ -1,0 +1,13 @@
+Assembly-CSharp.csproj
+MuWhang.sln
+bfg-1.13.0.jar
+.vs/
+obj/
+Logs/
+Library/
+Temp/
+
+Assembly-CSharp-Editor.csproj
+MuHwang.sln
+Assets/Scripts/Model/LocalUserInfo.cs.meta
+Assets/Scripts/Model/PlayableCharInfo.cs.meta
