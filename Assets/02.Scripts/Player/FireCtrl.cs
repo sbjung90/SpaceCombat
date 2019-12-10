@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 [System.Serializable]
 public struct PlayerSfx
@@ -46,6 +47,11 @@ public class FireCtrl : MonoBehaviour
     //재장전 여부를 판단할 변수
     private bool isReloading = false;
 
+    // 변경할 무기 이미지
+    public Sprite[] weaponIcons;
+    // 교체할 무기 이미지 UI
+    public Image weaponImage;
+
 
     private void Start()
     {
@@ -57,6 +63,8 @@ public class FireCtrl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (EventSystem.current.IsPointerOverGameObject()) return;
+
         if (!isReloading && Input.GetMouseButtonDown(0))
         {
             --remainingBullet;
@@ -120,5 +128,9 @@ public class FireCtrl : MonoBehaviour
         UpdateBulletText();
     }
 
-
+    public void OnChangeWeapon()
+    {
+        currWeapon = (WeaponType)((int)++currWeapon % 2);
+        weaponImage.sprite = weaponIcons[(int)currWeapon];
+    }
 }

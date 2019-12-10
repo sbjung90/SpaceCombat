@@ -26,6 +26,8 @@ public class GameManager : MonoBehaviour
 
     public static GameManager instance = null;
 
+    private bool isPaused = false;
+
     void Awake()
     {
         if (instance == null)
@@ -106,6 +108,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void OnPauseClick()
+    {
+        isPaused = !isPaused;
+
+        Time.timeScale = (isPaused) ? 0.0f : 1.0f;
+
+        var playerObj = GameObject.FindGameObjectWithTag("PLAYER");
+
+        var scripts = playerObj.GetComponents<MonoBehaviour>();
+
+        foreach (var script in scripts)
+        {
+            script.enabled = !isPaused;
+        }
+    }
 
     // Update is called once per frame
     void Update()
