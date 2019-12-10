@@ -106,6 +106,7 @@ public class EnemyAI : MonoBehaviour
                     animator.SetBool(hashMove, false);
                     break;
                 case State.DIE:
+                    gameObject.tag = "Untagged";
                     isDie = true;
                     moveAgent.Stop();
                     enemyFire.isFire = false;

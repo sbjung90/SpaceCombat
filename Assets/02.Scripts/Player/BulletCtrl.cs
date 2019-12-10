@@ -8,9 +8,27 @@ public class BulletCtrl : MonoBehaviour
 
     public float speed = 1000.0f;
 
-    // Start is called before the first frame update
-    void Start()
+    private Transform tr;
+    private Rigidbody rb;
+    private TrailRenderer trail;
+
+    void Awake()
+    {
+        tr = GetComponent<Transform>();
+        rb = GetComponent<Rigidbody>();
+        trail = GetComponent<TrailRenderer>();
+    }
+
+    void OnEnable()
     {
         GetComponent<Rigidbody>().AddForce(transform.forward * speed);
     }
+    void OnDisable()
+    {
+        trail.Clear();
+        tr.position = Vector3.zero;
+        tr.rotation = Quaternion.identity;
+        rb.Sleep();
+    }
+
 }

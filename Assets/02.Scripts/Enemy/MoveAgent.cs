@@ -93,9 +93,12 @@ public class MoveAgent : MonoBehaviour
     {
         if (agent.isStopped == false)
         {
-            Quaternion rot = Quaternion.LookRotation(agent.desiredVelocity);
-            enemyTr.rotation = Quaternion.Slerp(enemyTr.rotation, rot,
-                Time.deltaTime * damping);
+            if (agent.desiredVelocity != Vector3.zero)
+            {
+                Quaternion rot = Quaternion.LookRotation(agent.desiredVelocity);
+                enemyTr.rotation = Quaternion.Slerp(enemyTr.rotation, rot,
+                    Time.deltaTime * damping);
+            }
         }
 
         if (!patrolling) return;

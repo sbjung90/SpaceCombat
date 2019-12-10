@@ -45,7 +45,9 @@ public class EnemyDamage : MonoBehaviour
                     GetComponent<EnemyAI>().state = EnemyAI.State.DIE;
                 }
             }
-            Destroy(collision.gameObject);
+            //Destroy(collision.gameObject);
+            collision.gameObject.SetActive(false);
+
         }
     }
 
