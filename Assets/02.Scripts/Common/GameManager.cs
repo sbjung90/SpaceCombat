@@ -28,6 +28,8 @@ public class GameManager : MonoBehaviour
 
     private bool isPaused = false;
 
+    public CanvasGroup inventoryCG;
+
     void Awake()
     {
         if (instance == null)
@@ -47,6 +49,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        OnInventroyOpen(false);
         // Hierarchy 윈도우의 SpawnPointGroup 을 찾아 하위에 있는 모든 Transform 컴포넌트를 찾아옴
         points = GameObject.Find("SpawnPointGroup").GetComponentsInChildren<Transform>();
         if (points.Length > 0)
@@ -122,11 +125,15 @@ public class GameManager : MonoBehaviour
         {
             script.enabled = !isPaused;
         }
+
+        var canvasGroup = GameObject.Find("Panel-Weapon").GetComponent<CanvasGroup>();
+        canvasGroup.blocksRaycasts = !isPaused;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnInventroyOpen(bool isOpened)
     {
-        
+        inventoryCG.alpha = (isOpened) ? 1.0f : 0.0f;
+        inventoryCG.interactable = isOpened;
+        inventoryCG.blocksRaycasts = isOpened;
     }
 }
