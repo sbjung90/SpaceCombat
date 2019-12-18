@@ -35,6 +35,7 @@ public class PlayerCtrl : MonoBehaviour
         anim.clip = playerAnim.idle;
         anim.Play();
         skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+        moveSpeed = GameManager.instance.gameData.speed;
         //foreach(SkinnedMeshRenderer r in skinnedMeshRenderers)
         //{
         //    Color c = r.material.color;
@@ -42,6 +43,15 @@ public class PlayerCtrl : MonoBehaviour
         //    r.material.color = c;
         //}
 
+    }
+
+    private void OnEnable()
+    {
+        GameManager.OnItemChange += UpdateSetup;
+    }
+    void UpdateSetup()
+    {
+        moveSpeed = GameManager.instance.gameData.speed;
     }
 
     // Update is called once per frame

@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
+using DataInfo;
 
 public class GameManager : MonoBehaviour
 {
@@ -30,6 +33,22 @@ public class GameManager : MonoBehaviour
 
     public CanvasGroup inventoryCG;
 
+    //[HideInInspector]
+    //public int killCount;
+
+    [Header("GameData")]
+    public Text killCountTxt;
+    private DataManager dataManager;
+    //public GameData gameData;
+    public GameDataObject gameData;
+
+    public delegate void ItemChangeDelegate();
+    public static event ItemChangeDelegate OnItemChange;
+
+    private GameObject slotList;
+
+    public GameObject[] itemObject;
+
     void Awake()
     {
         if (instance == null)
@@ -42,9 +61,139 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
         DontDestroyOnLoad(gameObject);
+
+        dataManager = GetComponent<DataManager>();
+
+        dataManager.Initialize();
+
+        slotList = inventoryCG.transform.Find("SlotList").gameObject;
+
+        LoadGameData();
+
         CreatePooling();
     }
 
+    void LoadGameData()
+    {
+        //GameData data = dataManager.Load();
+
+        //gameData.hp = data.hp;
+        //gameData.damage = data.damage;
+        //gameData.speed = data.speed;
+        //gameData.killCount = data.killCount;
+        //gameData.equipItem = data.equipItem;
+
+        if (gameData.equipItem.Count > 0)
+        {
+            InventorySetup();
+        }
+
+        killCountTxt.text = "KILL " + gameData.killCount.ToString("0000");
+
+        //killCount = PlayerPrefs.GetInt("KILL_COUNT", 0);
+        //killCountTxt.text = "KILL " + killCount.ToString("0000");
+    }
+
+    void SaveGameData()
+    {
+        //dataManager.Save(gameData);
+        UnityEditor.EditorUtility.SetDirty(gameData);
+    }
+
+    void InventorySetup()
+    {
+        var slots = slotList.GetComponentsInChildren<Transform>();
+
+        for (int i = 0; i < gameData.equipItem.Count; ++i)
+        {
+            for (int j = 1; j < slots.Length; ++j)
+            {
+                if (slots[j].childCount > 0) continue;
+
+                int itemIndex = (int)gameData.equipItem[i].itemType;
+
+                itemObject[itemIndex].GetComponent<Transform>().SetParent(slots[j]);
+
+                itemObject[itemIndex].GetComponent<ItemInfo>().itemData = gameData.equipItem[i];
+
+                break;
+            }
+        }
+    }
+
+    public void AddItem(Item item)
+    {
+        if (gameData.equipItem.Contains(item)) return;
+
+        gameData.equipItem.Add(item);
+
+        switch (item.itemType)
+        {
+            case Item.ItemType.HP:
+                if (item.itemCalc == Item.ItemCalc.INC_VALUE)
+                    gameData.hp += item.value;
+                else
+                    gameData.hp += gameData.hp * item.value;
+                break;
+            case Item.ItemType.DAMAGE:
+                if (item.itemCalc == Item.ItemCalc.INC_VALUE)
+                    gameData.damage += item.value;
+                else
+                    gameData.damage += gameData.damage * item.value;
+                break;
+            case Item.ItemType.SPEED:
+                if (item.itemCalc == Item.ItemCalc.INC_VALUE)
+                    gameData.speed += item.value;
+                else
+                    gameData.speed += gameData.speed * item.value;
+                break;
+            case Item.ItemType.GRENADE:
+                break;
+        }
+
+        UnityEditor.EditorUtility.SetDirty(gameData);
+        OnItemChange();
+    }
+
+    public void RemoveItem(Item item)
+    {
+        gameData.equipItem.Remove(item);
+
+        switch (item.itemType)
+        {
+            case Item.ItemType.HP:
+                if (item.itemCalc == Item.ItemCalc.INC_VALUE)
+                    gameData.hp -= item.value;
+                else
+                    gameData.hp = gameData.hp / (1.0f +  item.value);
+                break;
+            case Item.ItemType.DAMAGE:
+                if (item.itemCalc == Item.ItemCalc.INC_VALUE)
+                    gameData.damage -= item.value;
+                else
+                    gameData.damage = gameData.hp / (1.0f + item.value);
+                break;
+            case Item.ItemType.SPEED:
+                if (item.itemCalc == Item.ItemCalc.INC_VALUE)
+                    gameData.speed -= item.value;
+                else
+                    gameData.speed = gameData.hp / (1.0f + item.value);
+                break;
+            case Item.ItemType.GRENADE:
+                break;
+        }
+        UnityEditor.EditorUtility.SetDirty(gameData);
+        OnItemChange();
+    }
+
+    public void IncKillCount()
+    {
+        ++gameData.killCount;
+        killCountTxt.text = "KILL " + gameData.killCount.ToString("0000");
+        //++killCount;
+        //killCountTxt.text = "KILL " + killCount.ToString("0000");
+        //PlayerPrefs.SetInt("KILL_COUNT", killCount);
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -135,5 +284,10 @@ public class GameManager : MonoBehaviour
         inventoryCG.alpha = (isOpened) ? 1.0f : 0.0f;
         inventoryCG.interactable = isOpened;
         inventoryCG.blocksRaycasts = isOpened;
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveGameData();
     }
 }
