@@ -11,3 +11,6 @@ Assembly-CSharp-Editor.csproj
 MuHwang.sln
 Assets/Scripts/Model/LocalUserInfo.cs.meta
 Assets/Scripts/Model/PlayableCharInfo.cs.meta
+EnemyAD.csproj
+CommonAD.csproj
+SpaceCombat.sln
