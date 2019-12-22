@@ -26,6 +26,7 @@ public class EnemyAI : MonoBehaviour
     private MoveAgent moveAgent;
     private Animator animator;
     private EnemyFire enemyFire;
+    private EnemyFOV enemyFOV;
 
     private readonly int hashMove = Animator.StringToHash("IsMove");
     private readonly int hashSpeed = Animator.StringToHash("Speed");
@@ -46,10 +47,12 @@ public class EnemyAI : MonoBehaviour
 
         enemyTr = GetComponent<Transform>();
 
-        ws = new WaitForSeconds(0.3f);
         moveAgent = GetComponent<MoveAgent>();
         animator = GetComponent<Animator>();
         enemyFire = GetComponent<EnemyFire>();
+        enemyFOV = GetComponent<EnemyFOV>();
+
+        ws = new WaitForSeconds(0.3f);
         //Cycle Offset 값을 불규칙하게 변경
         animator.SetFloat(hashOffset, Random.Range(0.0f, 1.0f));
         //Speed 값을 불규칙하게 변경
@@ -67,9 +70,17 @@ public class EnemyAI : MonoBehaviour
 
             if (dist <= attackDist)
             {
-                state = State.ATTACK;
+                if (enemyFOV.IsViewPlayer())
+                {
+                    state = State.ATTACK;
+                }
+                else
+                {
+                    state = State.TRACE;
+                }
+
             }
-            else if (dist <= traceDist)
+            else if (enemyFOV.IsTracePlayer())
             {
                 state = State.TRACE;
             }

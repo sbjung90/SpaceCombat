@@ -52,18 +52,64 @@ public class FireCtrl : MonoBehaviour
     // 교체할 무기 이미지 UI
     public Image weaponImage;
 
+    private int enemyLayer;
+    private int obstacleLayer;
+    private int barrelLayer;
+
+    private int layerMask;
+
+    private bool isFire = false;
+
+    private float nextFire;
+
+    public float fireRate = 0.1f;
 
     private void Start()
     {
         muzzleFlash = firePos.GetComponentInChildren<ParticleSystem>();
         audioSource = GetComponent<AudioSource>();
         shake = GameObject.Find("CameraRig").GetComponent<Shake>();
+
+        enemyLayer = LayerMask.NameToLayer("ENEMY");
+        obstacleLayer = LayerMask.NameToLayer("OBSTACLE");
+        barrelLayer = LayerMask.NameToLayer("BARREL");
+
+        layerMask = 1 << enemyLayer | 1 << obstacleLayer | 1 << barrelLayer;
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.DrawRay(firePos.position, firePos.forward * 20.0f, Color.green);
+
         if (EventSystem.current.IsPointerOverGameObject()) return;
+
+
+        if (Physics.Raycast(firePos.position, firePos.forward, out RaycastHit hit, 20.0f, layerMask))
+        {
+            Debug.LogFormat("FireCtrl Update tag : {0}", hit.collider.tag);
+            isFire = (hit.collider.CompareTag("ENEMY"));
+        }
+        else
+        {
+            isFire = false;
+        }
+
+        if (!isReloading && isFire)
+        {
+            if (Time.time > nextFire)
+            {
+                --remainingBullet;
+                Fire();
+
+                if (remainingBullet == 0)
+                {
+                    StartCoroutine(Reloading());
+                }
+
+                nextFire = Time.time + fireRate;
+            }
+        }
 
         if (!isReloading && Input.GetMouseButtonDown(0))
         {
@@ -75,7 +121,6 @@ public class FireCtrl : MonoBehaviour
                 StartCoroutine(Reloading());
             }
         }
-
     }
 
     void Fire()

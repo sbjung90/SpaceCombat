@@ -31,6 +31,16 @@ public class BarrelCtrl : MonoBehaviour
         meshRenderer = GetComponent<MeshRenderer>();
         meshRenderer.material.mainTexture = textures[Random.Range(0, textures.Length)];
         audioSource = GetComponent<AudioSource>();
+        //shake = GameObject.Find("CameraRig").GetComponent<Shake>();
+        StartCoroutine(GetShake());
+    }
+
+    IEnumerator GetShake()
+    {
+        while (!UnityEngine.SceneManagement.SceneManager.GetSceneByName("Play").isLoaded)
+        {
+            yield return null;
+        }
         shake = GameObject.Find("CameraRig").GetComponent<Shake>();
     }
 
